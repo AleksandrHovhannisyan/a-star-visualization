@@ -73,15 +73,15 @@ class Demo extends HTMLElement {
 
     const [startX, startY] = (this.getAttribute("start") || "0,0")
       .split(",")
-      .map((n) => Number(n));
+      .map((n) => Number(n.trim()));
     const [endX, endY] = (this.getAttribute("end") || "0,0")
       .split(",")
-      .map((n) => Number(n));
+      .map((n) => Number(n.trim()));
     this.start = new Vector2(startX, startY);
     this.end = new Vector2(endX, endY);
 
-    this.nodes = [];
     // Initialize grid
+    this.nodes = [];
     const nodeWidth = this.width / this.numCols;
     const nodeHeight = this.height / this.numRows;
     for (let row = 0; row < this.numRows; row++) {
@@ -123,32 +123,24 @@ class Demo extends HTMLElement {
     return Number(this.getAttribute("height"));
   }
 
-  private getNodeStroke(node: Node) {
-    return Vector2.areEqual(node.position, this.start) ||
-      Vector2.areEqual(node.position, this.end)
-      ? "red"
-      : "black";
-  }
-
   private draw() {
     this.canvas.clear("white");
     this.nodes.forEach((row) =>
-      row.forEach((node) =>
+      row.forEach((node) => {
+        const isStartOrEnd =
+          Vector2.areEqual(node.position, this.start) ||
+          Vector2.areEqual(node.position, this.end);
+        const fill = isStartOrEnd
+          ? "red"
+          : this.candidateNodes.has(node)
+          ? "#90afe0"
+          : this.evaluatedNodes.has(node)
+          ? "#9be090"
+          : undefined;
         node.draw(this.canvas, {
-          stroke: this.getNodeStroke(node),
-        })
-      )
-    );
-    this.candidateNodes.forEach((node) =>
-      node.draw(this.canvas, {
-        fill: "#90afe0",
-        stroke: this.getNodeStroke(node),
-      })
-    );
-    this.evaluatedNodes.forEach((node) =>
-      node.draw(this.canvas, {
-        fill: "#9be090",
-        stroke: this.getNodeStroke(node),
+          fill,
+          stroke: "black",
+        });
       })
     );
   }
