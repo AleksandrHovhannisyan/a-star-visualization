@@ -46,6 +46,11 @@ export default class Vector2 {
     );
   }
 
+  /** Returns true if the two vectors are equal. */
+  static areEqual(a: Vector2, b: Vector2) {
+    return a.x === b.x && a.y === b.y;
+  }
+
   /**
    * Returns a copy of a vector.
    */

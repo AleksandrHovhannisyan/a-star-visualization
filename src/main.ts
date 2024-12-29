@@ -45,7 +45,14 @@ class Node {
 }
 
 class Demo extends HTMLElement {
-  static observedAttributes = ["width", "height", "rows", "cols"];
+  static observedAttributes = [
+    "width",
+    "height",
+    "rows",
+    "cols",
+    "start",
+    "end",
+  ];
   private numRows: number;
   private numCols: number;
   private canvas: Canvas;
@@ -64,8 +71,15 @@ class Demo extends HTMLElement {
     this.numRows = Number(this.getAttribute("rows"));
     this.numCols = Number(this.getAttribute("cols"));
 
-    this.start = new Vector2(0, 0);
-    this.end = new Vector2(this.numCols - 1, this.numRows - 1);
+    const [startX, startY] = (this.getAttribute("start") || "0,0")
+      .split(",")
+      .map((n) => Number(n));
+    const [endX, endY] = (this.getAttribute("end") || "0,0")
+      .split(",")
+      .map((n) => Number(n));
+    this.start = new Vector2(startX, startY);
+    this.end = new Vector2(endX, endY);
+
     this.nodes = [];
     // Initialize grid
     const nodeWidth = this.width / this.numCols;
@@ -110,8 +124,8 @@ class Demo extends HTMLElement {
   }
 
   private getNodeStroke(node: Node) {
-    return node === this.nodes[0][0] ||
-      node === this.nodes[this.numRows - 1][this.numCols - 1]
+    return Vector2.areEqual(node.position, this.start) ||
+      Vector2.areEqual(node.position, this.end)
       ? "red"
       : "black";
   }
@@ -139,7 +153,7 @@ class Demo extends HTMLElement {
     );
   }
 
-  private step() {
+  private findEndNode() {
     if (this.candidateNodes.size) {
       const cheapestNodeToVisit = Array.from(this.candidateNodes).reduce(
         (min, item) => (item.cost < min.cost ? item : min)
@@ -148,12 +162,8 @@ class Demo extends HTMLElement {
       this.candidateNodes.delete(cheapestNodeToVisit);
       this.evaluatedNodes.add(cheapestNodeToVisit);
 
-      if (
-        cheapestNodeToVisit.position.x === this.end.x &&
-        cheapestNodeToVisit.position.y === this.end.y
-      ) {
-        console.log("DONE");
-        return;
+      if (Vector2.areEqual(cheapestNodeToVisit.position, this.end)) {
+        return true;
       }
 
       cheapestNodeToVisit.neighbors.forEach((neighbor) => {
@@ -182,9 +192,11 @@ class Demo extends HTMLElement {
 
   private update() {
     requestAnimationFrame(() => {
-      this.step();
+      const found = this.findEndNode();
       this.draw();
-      this.update();
+      if (!found) {
+        this.update();
+      }
     });
   }
 }
