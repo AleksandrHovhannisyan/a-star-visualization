@@ -79,8 +79,8 @@ class Demo extends HTMLElement {
     const [endX, endY] = (this.getAttribute("end") || "0,0")
       .split(",")
       .map((n) => Number(n.trim()));
-    this.start = new Vector2(startX, startY);
-    this.end = new Vector2(endX, endY);
+    this.start = new Vector2(startY, startX);
+    this.end = new Vector2(endY, endX);
 
     // Initialize grid
     this.nodes = [];
