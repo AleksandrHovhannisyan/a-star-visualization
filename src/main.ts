@@ -11,6 +11,8 @@ class Node {
   public cost: number;
   public gScore: number;
   public neighbors: Node[];
+  /** The node we came from */
+  public previous?: Node;
 
   constructor(position: Vector2, width: number, height: number) {
     this.width = width;
@@ -154,8 +156,15 @@ class Demo extends HTMLElement {
       this.candidateNodes.delete(cheapestNodeToVisit);
       this.evaluatedNodes.add(cheapestNodeToVisit);
 
+      // Found the path to the end
       if (Vector2.areEqual(cheapestNodeToVisit.position, this.end)) {
-        return true;
+        const path: Node[] = [cheapestNodeToVisit];
+        let current = cheapestNodeToVisit.previous;
+        while (current) {
+          path.push(current);
+          current = current.previous;
+        }
+        return path.reverse();
       }
 
       cheapestNodeToVisit.neighbors.forEach((neighbor) => {
@@ -178,16 +187,19 @@ class Demo extends HTMLElement {
 
         const costEstimated = getDistance(neighbor.position, this.end);
         neighbor.cost = neighbor.gScore + costEstimated;
+        neighbor.previous = cheapestNodeToVisit;
       });
     }
   }
 
   private update() {
     requestAnimationFrame(() => {
-      const found = this.findEndNode();
+      const pathToEnd = this.findEndNode();
       this.draw();
-      if (!found) {
+      if (!pathToEnd) {
         this.update();
+      } else {
+        pathToEnd.forEach((node) => node.draw(this.canvas, { fill: 'red' }));
       }
     });
   }
