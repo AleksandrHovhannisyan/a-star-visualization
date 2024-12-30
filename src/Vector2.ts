@@ -2,8 +2,12 @@ export function toRadians(degrees: number) {
   return (degrees * Math.PI) / 180;
 }
 
-export function getDistance(a: Vector2, b: Vector2) {
+export function getEuclidenDistance(a: Vector2, b: Vector2) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));  
+}
+
+export function getManhattanDistance(a: Vector2, b: Vector2) {
+  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);  
 }
 
 /** Two-dimensional vector. */

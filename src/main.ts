@@ -1,5 +1,5 @@
 import Canvas from "./Canvas";
-import Vector2, { getDistance } from "./Vector2";
+import Vector2, { getManhattanDistance } from "./Vector2";
 
 type Grid = Node[][];
 
@@ -185,7 +185,7 @@ class Demo extends HTMLElement {
           this.candidateNodes.add(neighbor);
         }
 
-        const costEstimated = getDistance(neighbor.position, this.end);
+        const costEstimated = getManhattanDistance(neighbor.position, this.end);
         neighbor.cost = neighbor.gScore + costEstimated;
         neighbor.previous = cheapestNodeToVisit;
       });
